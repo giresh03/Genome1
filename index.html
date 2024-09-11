@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Classification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #008fac;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #6f9e9d;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            font-size: 18px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .safe {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .unsafe {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Drug Safety Classification</h1>
+        <form id="drugForm">
+            <label for="drugName">Enter Drug Name:</label>
+            <input type="text" id="drugName" name="drugName" placeholder="e.g., Aspirin" required>
+
+            <button type="submit">Classify Drug</button>
+        </form>
+
+        <div id="result" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('drugForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Get the drug name entered by the user
+            const drugName = document.getElementById('drugName').value.trim();
+            const resultDiv = document.getElementById('result');
+
+            // Placeholder for the classification logic (replace with real backend/API call)
+            const drugData = {
+                "Aspirin": {safe: true, sideEffects: []},
+                "Xanax": {safe: false, sideEffects: ["Nausea", "Vomiting", "Dizziness"]},
+                "Ibuprofen": {safe: true, sideEffects: []},
+                "Cough Syrup": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Upset stomach"]},
+                "Acetaminophen": {safe: true, sideEffects: []},
+                "Paracetamol": {safe: true, sideEffects: []},
+                "Diazepam": {safe: false, sideEffects: ["Drowsiness", "Fatigue", "Headache"]},
+                "Amoxicillin": {safe: true, sideEffects: []},
+                "Ciprofloxacin": {safe: false, sideEffects: ["Diarrhea", "Nausea", "Dizziness"]},
+                "Methadone": {safe: false, sideEffects: ["Drowsiness", "Respiratory Depression", "Constipation"]},
+                "Codeine": {safe: false, sideEffects: ["Constipation", "Drowsiness", "Nausea"]},
+                "Warfarin": {safe: false, sideEffects: ["Bleeding", "Rash", "Hair loss"]},
+                "Prednisone": {safe: false, sideEffects: ["Weight gain", "Insomnia", "Mood swings"]},
+                "Metformin": {safe: true, sideEffects: []},
+                "Clonazepam": {safe: false, sideEffects: ["Drowsiness", "Dizziness", "Coordination problems"]},
+                "Zoloft": {safe: true, sideEffects: []},
+                "Prozac": {safe: true, sideEffects: []},
+                "Oxycodone": {safe: false, sideEffects: ["Nausea", "Drowsiness", "Addiction"]},
+                "Hydrocodone": {safe: false, sideEffects: ["Nausea", "Constipation", "Drowsiness"]},
+                "Tramadol": {safe: false, sideEffects: ["Nausea", "Dizziness", "Constipation"]},
+                "Lisinopril": {safe: true, sideEffects: []},
+                "Amlodipine": {safe: true, sideEffects: []},
+                "Losartan": {safe: true, sideEffects: []},
+                "Atorvastatin": {safe: true, sideEffects: []},
+                "Simvastatin": {safe: true, sideEffects: []},
+                "Fentanyl": {safe: false, sideEffects: ["Nausea", "Respiratory Depression", "Addiction"]},
+                "Morphine": {safe: false, sideEffects: ["Nausea", "Drowsiness", "Constipation"]},
+                "Clindamycin": {safe: false, sideEffects: ["Diarrhea", "Nausea", "Rash"]},
+                "Levothyroxine": {safe: true, sideEffects: []},
+                "Trazodone": {safe: false, sideEffects: ["Drowsiness", "Dizziness", "Dry mouth"]},
+                "Gabapentin": {safe: false, sideEffects: ["Dizziness", "Fatigue", "Weight gain"]},
+                "Cetirizine": {safe: true, sideEffects: []},
+                "Alprazolam": {safe: false, sideEffects: ["Drowsiness", "Fatigue", "Memory problems"]},
+                "Seldane": {safe: false, sideEffects: ["Drowsiness", "Headache", "Nausea"]},
+                "Hismanal": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Headache"]},
+                "Dimetapp-D": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Nausea"]},
+                "Motrin PM": {safe: false, sideEffects: ["Drowsiness", "Nausea", "Upset stomach"]},
+                "Lumigan": {safe: false, sideEffects: ["Eye irritation", "Headache", "Darkening of the iris"]},
+                "Elidel": {safe: false, sideEffects: ["Skin irritation", "Burning sensation", "Redness"]},
+                "Famvir": {safe: false, sideEffects: ["Headache", "Nausea", "Dizziness"]},
+                "Levitra": {safe: false, sideEffects: ["Headache", "Flushing", "Nasal congestion"]},
+                "Vioxx": {safe: false, sideEffects: ["Heart attack", "Stroke", "Gastrointestinal bleeding"]},
+                "Achromycin-C": {safe: false, sideEffects: ["Nausea", "Vomiting", "Diarrhea"]},
+                "Combigan": {safe: false, sideEffects: ["Eye irritation", "Headache", "Dry mouth"]},
+                "Lomotil Plus": {safe: false, sideEffects: ["Drowsiness", "Constipation", "Dry mouth"]},
+                "Prinivil": {safe: true, sideEffects: []},
+                "Valtrex": {safe: false, sideEffects: ["Headache", "Nausea", "Dizziness"]},
+                "Allercet-D": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Headache"]},
+                "Rositaz": {safe: false, sideEffects: ["Nausea", "Headache", "Diarrhea"]},
+                "Pepto-Bismol": {safe: true, sideEffects: []},
+                "Procardia": {safe: false, sideEffects: ["Dizziness", "Headache", "Swelling"]},
+                "Pravachol": {safe: true, sideEffects: []},
+                "Welchol": {safe: true, sideEffects: []},
+                "Ditropan": {safe: false, sideEffects: ["Dry mouth", "Constipation", "Blurred vision"]},
+                "Bextra": {safe: false, sideEffects: ["Heart attack", "Stroke", "Gastrointestinal bleeding"]},
+                "Tylenol PM": {safe: false, sideEffects: ["Drowsiness", "Nausea", "Stomach pain"]},
+                "Triaminic-D": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Headache"]},
+                "Nytol Pain Relief": {safe: false, sideEffects: ["Drowsiness", "Nausea", "Headache"]},
+                "Unisom Pain Relief": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Constipation"]},
+                "Xarelto": {safe: false, sideEffects: ["Bleeding", "Anemia", "Nausea"]},
+                "Lovenox": {safe: false, sideEffects: ["Bleeding", "Pain at injection site", "Nausea"]},
+                "Brilinta": {safe: false, sideEffects: ["Bleeding", "Shortness of breath", "Headache"]},
+                "Tussionex": {safe: false, sideEffects: ["Drowsiness", "Constipation", "Dry mouth"]},
+                "Chlorphen 12": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Dizziness"]},
+                "Excedrin PM": {safe: false, sideEffects: ["Drowsiness", "Nausea", "Stomach pain"]},
+                "Comtrex": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Headache"]},
+                "Fenormin": {safe: false, sideEffects: ["Nausea", "Headache", "Dizziness"]},
+                "Valdyne": {safe: false, sideEffects: ["Drowsiness", "Headache", "Nausea"]},
+                "Azopt": {safe: false, sideEffects: ["Eye irritation", "Headache", "Blurred vision"]},
+                "Crestor": {safe: true, sideEffects: []},
+                "Toprol XL": {safe: true, sideEffects: []},
+                "Diozole": {safe: false, sideEffects: ["Headache", "Nausea", "Dizziness"]},
+                "Aleve PM": {safe: false, sideEffects: ["Drowsiness", "Nausea", "Stomach pain"]},
+                "Chlorpheniramine Compound": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Dizziness"]},
+                "Imodium-D": {safe: false, sideEffects: ["Constipation", "Nausea", "Dizziness"]},
+                "Vigamox": {safe: false, sideEffects: ["Eye irritation", "Headache", "Nausea"]},
+                "Vytorin": {safe: true, sideEffects: []},
+                "Aldactone": {safe: false, sideEffects: ["Dizziness", "Headache", "Hyperkalemia"]},
+                "Afrin": {safe: false, sideEffects: ["Nasal irritation", "Headache", "Dryness"]},
+                "Plendil": {safe: false, sideEffects: ["Swelling", "Headache", "Dizziness"]},
+                "Rescon": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Dizziness"]},
+                "Antistin": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Headache"]},
+                "Piperacillin": {safe: true, sideEffects: []},
+                "Tazobactam": {safe: true, sideEffects: []},
+                "Flonase": {safe: true, sideEffects: []},
+                "Atacand": {safe: true, sideEffects: []},
+                "Capoten": {safe: true, sideEffects: []},
+                "Fen-Phen": {safe: false, sideEffects: ["Heart problems", "Pulmonary hypertension", "Valvular disease"]},
+                "Sominex Pain Relief": {safe: false, sideEffects: ["Drowsiness", "Nausea", "Headache"]},
+                "Isopto Carpine": {safe: false, sideEffects: ["Eye irritation", "Headache", "Nausea"]},
+                "Tricor": {safe: true, sideEffects: []},
+                "Benicar": {safe: true, sideEffects: []},
+                "Monopril": {safe: true, sideEffects: []},
+                "Entresto": {safe: false, sideEffects: ["Low blood pressure", "Kidney problems", "Hyperkalemia"]},
+                "Desfen": {safe: false, sideEffects: ["Dizziness", "Dry mouth", "Fatigue"]},
+                "Parmidina": {safe: false, sideEffects: ["Nausea", "Headache", "Dizziness"]},
+                "Benadryl Cold & Flu": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Headache"]},
+                "Mucinex": {safe: true, sideEffects: []},
+                "Niaspan": {safe: true, sideEffects: []},
+                "Pradaxa": {safe: false, sideEffects: ["Bleeding", "Nausea", "Headache"]},
+                "Valecoxib": {safe: false, sideEffects: ["Heart attack", "Stroke", "Gastrointestinal bleeding"]},
+                "Inderal": {safe: true, sideEffects: []},
+                "Hydrodiuril": {safe: true, sideEffects: []},
+                "Percogesic": {safe: false, sideEffects: ["Drowsiness", "Nausea", "Headache"]},
+                "Remedrin": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Headache"]},
+                "Doxy-C": {safe: true, sideEffects: []},
+                "Chloraseptic": {safe: false, sideEffects: ["Numbness in mouth", "Burning sensation", "Sore throat"]},
+                "Vicks DayQuil": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Nausea"]},
+                "Cardura": {safe: true, sideEffects: []},
+                "Xalatan": {safe: false, sideEffects: ["Eye irritation", "Headache", "Darkening of the iris"]},
+                "Pro-Asthist": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Headache"]},
+                "Harvoni": {safe: false, sideEffects: ["Fatigue", "Headache", "Nausea"]},
+                "Epclusa": {safe: false, sideEffects: ["Fatigue", "Headache", "Nausea"]},
+                "Eucrisa": {safe: true, sideEffects: []},
+                "Travatan Z": {safe: false, sideEffects: ["Eye irritation", "Darkening of the iris", "Headache"]},
+                "Astemisan": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Headache"]},
+                "Theraflu": {safe: false, sideEffects: ["Drowsiness", "Dry mouth", "Nausea"]},
+                "Cozaar": {safe: true, sideEffects: []},
+                "Maninil-Phenformin": {safe: false, sideEffects: ["Hypoglycemia", "Nausea", "Headache"]},
+                "Midol PM": {safe: false, sideEffects: ["Drowsiness", "Nausea", "Stomach pain"]},
+                "Zebeta": {safe: true, sideEffects: []},
+                "Maxzide": {safe: true, sideEffects: []},
+                "Accupril": {safe: true, sideEffects: []},
+                "Achromycin-C": {safe: false, sideEffects: ["Nausea", "Vomiting", "Diarrhea"]},
+                "Cepacol": {safe: false, sideEffects: ["Numbness in mouth", "Burning sensation", "Sore throat"]},
+                "Diovan": {safe: true, sideEffects: []},
+                "Ocuflox": {safe: false, sideEffects: ["Eye irritation", "Headache", "Nausea"]},
+                "Myrbetriq": {safe: false, sideEffects: ["Dry mouth", "Dizziness", "Headache"]},
+                "Timoptic": {safe: false, sideEffects: ["Eye irritation", "Headache", "Blurred vision"]},
+                "Aspirin": {safe: true, sideEffects: []},
+                "Dolo 650": {safe: true, sideEffects: []},
+                "Disprin": {safe: true, sideEffects: []},
+                "Advil PM": {safe: true, sideEffects: []},
+                "Allegra": {safe: true, sideEffects: []},
+                "Paracetamol": {safe: true, sideEffects: []},
+                "Botox": {safe: true, sideEffects: []},
+                "Biotin": {safe: true, sideEffects: []},
+                "Bentyl": {safe: true, sideEffects: []},
+                "Vicks": {safe: true, sideEffects: []},
+                "Strepsil": {safe: true, sideEffects: []},
+                "Amritanjali": {safe: true, sideEffects: []},
+                "Neorelax": {safe: true, sideEffects: []},
+                "Ofloxacin": {safe: true, sideEffects: []},
+                "Montemac-L": {safe: true, sideEffects: []},
+                "Dermi 5": {safe: true, sideEffects: []},
+                "Nurokind-LC": {safe: true, sideEffects: []},
+                "Digene": {safe: true, sideEffects: []},
+                "Saridon": {safe: true, sideEffects: []},
+                "PAN 40": {safe: true, sideEffects: []},
+                "Brakke": {safe: true, sideEffects: []},
+                "Calpol 650": {safe: true, sideEffects: []},
+                "Galrol": {safe: true, sideEffects: []},
+                "Denovis": {safe: true, sideEffects: []},
+                "Azithral": {safe: true, sideEffects: []},
+                "Levocef": {safe: true, sideEffects: []},
+                "Dysmen": {safe: true, sideEffects: []},
+                "Monteh LC": {safe: true, sideEffects: []},
+                "Emeset-4": {safe: true, sideEffects: []},
+                "Flugyl 400": {safe: true, sideEffects: []},
+                "Eldospasplus": {safe: true, sideEffects: []},
+                "Oflotal-2": {safe: true, sideEffects: []},
+                "Zerodol-SP": {safe: true, sideEffects: []},
+                "Itch guard": {safe: true, sideEffects: []},
+                "Iodex": {safe: true, sideEffects: []},
+                "Zhandu balm": {safe: true, sideEffects: []},
+                "Volini": {safe: true, sideEffects: []},
+                "Moov": {safe: true, sideEffects: []},
+                "Soframycin": {safe: true, sideEffects: []},
+                "Covaccine": {safe: true, sideEffects: []},
+                "Covid Shield": {safe: true, sideEffects: []},
+                "Tiderbalm": {safe: true, sideEffects: []},
+                "Limcee": {safe: true, sideEffects: []},
+                "Zytee": {safe: true, sideEffects: []},
+                "Becosules": {safe: true, sideEffects: []}
+};
+
+            // Check if drug is in the database
+            if (drugData[drugName]) {
+                const drugInfo = drugData[drugName];
+
+                if (drugInfo.safe) {
+                    resultDiv.innerHTML = `<strong>${drugName} is safe to use.</strong>`;
+                    resultDiv.className = 'result safe';
+                } else {
+                    resultDiv.innerHTML = `<strong>${drugName} is unsafe to use.</strong><br><br>Side Effects: <ul>${drugInfo.sideEffects.map(effect => `<li>${effect}</li>`).join('')}</ul>`;
+                    resultDiv.className = 'result unsafe';
+                }
+            } else {
+                resultDiv.innerHTML = `<strong>Drug not found in the database.</strong>`;
+                resultDiv.className = 'result';
+            }
+
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
